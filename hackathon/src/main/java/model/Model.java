@@ -17,7 +17,7 @@ public class Model {
         this.values = values;
     }
 
-    protected Boolean checkCondition(String operator, String field, String value) {
+    public Boolean checkCondition(String operator, String field, String value) {
         // Checks condition on a model.
         // Note that all possible exceptions on the values of operator, field, and value
         // needs to be handled by the Repository.
