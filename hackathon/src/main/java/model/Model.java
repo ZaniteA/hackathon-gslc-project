@@ -3,7 +3,7 @@ package model;
 import java.util.ArrayList;
 
 public class Model {
-    ArrayList<String> fields;
+    public ArrayList<String> fields;
     public ArrayList<String> values;
 
     public Model(ArrayList<String> fields, ArrayList<String> values) {
@@ -20,8 +20,6 @@ public class Model {
 
     public Boolean checkCondition(String operator, String field, String value) {
         // Checks condition on a model.
-        // Note that all possible exceptions on the values of operator, field, and value
-        // needs to be handled by the Repository.
 
         // No operator to check
         if (operator == null) {
@@ -29,11 +27,9 @@ public class Model {
         }
 
         // Get the value to compare with, based on field
-        String compare_value = null;
-        for (int i = 0; i < fields.size(); i++) {
-            if (fields.get(i) == field) {
-                compare_value = values.get(i);
-            }
+        String compare_value = fetchField(field);
+        if (compare_value == null) {
+            return null;
         }
 
         // Perform operator check
@@ -45,7 +41,7 @@ public class Model {
 
         } else {
             // Invalid operator
-            return false;
+            return null;
         }
     }
 
@@ -60,9 +56,5 @@ public class Model {
         }
 
         return null;
-    }
-
-    public ArrayList<String> getValuesArray() {
-        return values;
     }
 }

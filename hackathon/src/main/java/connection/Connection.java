@@ -64,5 +64,18 @@ public class Connection {
 		}
 		
 	}
+
+	public void clearCsv(String fileName) {
+		String filePath = this.folderPath+fileName;
+		
+		try(FileWriter fw = new FileWriter(filePath)){
+			BufferedWriter out = new BufferedWriter(fw);
+			out.newLine();
+			out.close();
+		} catch(Exception e) {
+			System.err.println("Something went wrong with writing to " + filePath);
+			System.err.println(e.getMessage());
+		}
+	}
 		
 }
