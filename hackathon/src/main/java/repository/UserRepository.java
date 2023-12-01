@@ -1,21 +1,22 @@
 package repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import connection.Connection;
 import model.User;
 import model.Team;
 
 public class UserRepository implements Repository {
-    private String getTeamNameFromID(String team_id, Connection connection) {
+    private String getTeamIDFromName(String team_name, Connection connection) {
         // Returns the team name with id id, or null if it does not exists
         ArrayList<ArrayList<String>> teamData = connection.readCsv(connection.teamsFile);
         for (ArrayList<String> row : teamData) {
             Team current_team = new Team(row);
             
             // Check if the team ID is equal to the one that we want to count
-            if (current_team.checkCondition("=", "id", team_id)) {
-                return current_team.fetchField("Nama");
+            if (current_team.checkCondition("=", "Nama", team_name)) {
+                return current_team.fetchField("id");
             }
         }
 
@@ -47,45 +48,9 @@ public class UserRepository implements Repository {
         return member_count;
     }
 
-    private void displayException(String message) {
-        try {
-            throw new Exception(message);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     private ArrayList<User> findBounded(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection, Integer bound) {
         // Validation
-        if ((field != null) && (filter == null)) {
-            displayException("Field to use filter not specified");
-            return null;
-        }
-        if ((field == null) && (filter != null)) {
-            displayException("Filter to use on field not specified");
-            return null;
-        }
-        if (join_table != null) {
-            if (join_table_name == null) {
-                displayException("Table to join with not specified");
-                return null;
-            }
-            if (join_table_name.toLowerCase() != "team") {
-                displayException("Invalid table to join with");
-                return null;
-            }
-        }
-        if ((join_table == null) && (join_table_name != null)) {
-            displayException("Whether or not to join not specified");
-            return null;
-        }
-        
-        if (field == "") {
-            displayException("Field must not be empty");
-            return null;
-        }
-        if (filter.length != 2) {
-            displayException("Invalid filter format");
+        if (!RepositoryUtil.validateFindParameters(field, filter, join_table, join_table_name)) {
             return null;
         }
 
@@ -102,8 +67,8 @@ public class UserRepository implements Repository {
                     if (nu.fetchField("ID Team") == nt.fetchField("id")) {
                         User joined_data = nu;
                         for (int i = 0; i < nt.fields.size(); i++) {
-                            nu.fields.add(nt.fields.get(i));
-                            nu.values.add(nu.values.get(i));
+                            joined_data.fields.add(nt.fields.get(i));
+                            joined_data.values.add(nt.values.get(i));
                         }
                         user_list.add(joined_data);
                     }
@@ -122,7 +87,7 @@ public class UserRepository implements Repository {
         for (User current_user : user_list) {
             Boolean add = current_user.checkCondition(filter[0], field, filter[1]);
             if (add == null) {
-                displayException("Invalid filter format");
+                RepositoryUtil.displayException("Invalid filter format");
                 return null;
             }
             if (add) {
@@ -155,23 +120,30 @@ public class UserRepository implements Repository {
     }
 
     public User insert(ArrayList<String> fields, Connection connection) {
+        if (fields.size() != User.user_fields.size()) {
+            RepositoryUtil.displayException("Invalid fields format");
+            return null;
+        }
+
         User current_user = new User(fields);
 
         String user_NIM = current_user.fetchField("NIM");
-        String user_team = current_user.fetchField("ID Team");
-        String user_team_name = getTeamNameFromID("ID Team", connection);
+        String user_team_name = current_user.fetchField("ID Team"); // Temporarily store in field ID Team
+        String user_team_id = getTeamIDFromName("ID Team", connection);
 
         // Validation
-        if (user_team_name == null) {
-            displayException("Team with name " + user_team_name + " does not exist");
-            return null;
-        }
         if (existingNIM(user_NIM, connection)) {
-            displayException("User with NIM " + user_NIM + " already exists");
+            RepositoryUtil.displayException("User with NIM " + user_NIM + " already exists");
             return null;
         }
-        if (existingTeamMemberCount(user_team, connection) >= Team.max_members) {
-            displayException("Team " + user_team_name + " is already full!");
+        if (user_team_id == null) {
+            TeamRepository team_repo = new TeamRepository();
+            Team new_team = team_repo.insert(new ArrayList<String>(Arrays.asList(user_team_name)), connection);
+            user_team_id = new_team.fetchField("id");
+        }
+
+        if (existingTeamMemberCount(user_team_id, connection) >= Team.max_members) {
+            RepositoryUtil.displayException("Team " + user_team_name + " is already full!");
             return null;
         }
 
@@ -181,14 +153,14 @@ public class UserRepository implements Repository {
 
     public void delete(String nim, Connection connection) {
         if (nim == null) {
-            displayException("NIM to delete not specified");
+            RepositoryUtil.displayException("NIM to delete not specified");
             return;
         }
 
         String[] condition = {"=", nim};
         User to_delete = findOne("nim", condition, null, null, connection);
         if (to_delete == null) {
-            displayException("User with NIM " + nim + " not found");
+            RepositoryUtil.displayException("User with NIM " + nim + " not found");
             return;
         }
 
