@@ -2,6 +2,7 @@ package connection;
 
 import java.io.*;  
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Connection {
@@ -18,8 +19,8 @@ public class Connection {
 		return instance;
 	}
 	
-	public ArrayList<String[]> readCsv(String fileName){
-		ArrayList<String[]> resData = new ArrayList<String[]>();
+	public ArrayList<ArrayList<String>> readCsv(String fileName){
+		ArrayList<ArrayList<String>> resData = new ArrayList<ArrayList<String>>();
 		
 		String filePath = this.folderPath+fileName;
 		
@@ -28,7 +29,7 @@ public class Connection {
 		try (Scanner sc = new Scanner(f)){
 			while(sc.hasNextLine()) {
 				String row = sc.nextLine();
-				String[] rowData = row.split(",");
+				ArrayList<String> rowData = new ArrayList<String>(Arrays.asList(row.split(",")));
 				resData.add(rowData);
 			}
 		} catch (FileNotFoundException fe) {
@@ -41,14 +42,14 @@ public class Connection {
 		return resData;
 	}
 	
-	public void writeCsv(String fileName, String[] rowData) {
+	public void writeCsv(String fileName, ArrayList<String> rowData) {
 		String filePath = this.folderPath+fileName;
 		
 		try(FileWriter fw = new FileWriter(filePath, true)){
 			BufferedWriter out = new BufferedWriter(fw);
-			for(int i = 0; i < rowData.length; i++) {
-				out.write(rowData[i]);
-				if(i != rowData.length-1) {
+			for(int i = 0; i < rowData.size(); i++) {
+				out.write(rowData.get(i));
+				if(i != rowData.size()-1) {
 					out.write(",");
 				}
 			}

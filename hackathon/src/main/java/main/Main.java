@@ -10,14 +10,17 @@ public class Main {
         
         Connection conn = Connection.getInstance();
         
-        String[] data = {"69", "1TirtAnd2Birds"};
+        
+        ArrayList<String> data = new ArrayList<String>();
+        data.add("69");
+        data.add("1TirtAnd2Birds");
         conn.writeCsv("teams.csv", data);
         
-        ArrayList<String[]> userData = conn.readCsv("teams.csv");
+        ArrayList<ArrayList<String>> userData = conn.readCsv("teams.csv");
         
-        for(String[] rowData : userData) {
-        	for(int i = 0; i < rowData.length; i++) {
-        		System.out.print(rowData[i] + " ");
+        for(ArrayList<String> rowData : userData) {
+        	for(int i = 0; i < rowData.size(); i++) {
+        		System.out.print(rowData.get(i) + " ");
         	}
         	System.out.println();
         }
