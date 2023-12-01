@@ -65,7 +65,7 @@ public class UserRepository implements Repository {
             displayException("Filter to use on field not specified");
             return null;
         }
-        if (join_table) {
+        if (join_table != null) {
             if (join_table_name == null) {
                 displayException("Table to join with not specified");
                 return null;
@@ -177,5 +177,29 @@ public class UserRepository implements Repository {
 
         connection.writeCsv(connection.userFile, current_user.values);
         return current_user;
+    }
+
+    public void delete(String nim, Connection connection) {
+        if (nim == null) {
+            displayException("NIM to delete not specified");
+            return;
+        }
+
+        String[] condition = {"=", nim};
+        User to_delete = findOne("nim", condition, null, null, connection);
+        if (to_delete == null) {
+            displayException("User with NIM " + nim + " not found");
+            return;
+        }
+
+        ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
+        connection.clearCsv(connection.userFile);
+        for (ArrayList<String> u : users) {
+            User current_user = new User(u);
+            if (current_user.fetchField("NIM") == nim) {
+                continue;
+            }
+            connection.writeCsv(connection.userFile, u);
+        }
     }
 }
