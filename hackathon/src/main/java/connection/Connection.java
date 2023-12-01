@@ -9,7 +9,10 @@ public class Connection {
 	
 	private static final Connection instance = new Connection();
 	
-	private String folderPath = "database/";
+	private final String folderPath = "database/";
+
+	public final String userFile  = "user.csv";
+	public final String teamsFile = "teams.csv";
 	
 	// private constructor to avoid client application using the constructor
 	// based on Singleton principle
