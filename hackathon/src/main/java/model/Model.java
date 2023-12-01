@@ -3,7 +3,8 @@ package model;
 import java.util.ArrayList;
 
 public class Model {
-    ArrayList<String> fields, values;
+    ArrayList<String> fields;
+    public ArrayList<String> values;
 
     public Model(ArrayList<String> fields, ArrayList<String> values) {
         // Ensure that fields and values have the same size
@@ -46,5 +47,22 @@ public class Model {
             // Invalid operator
             return false;
         }
+    }
+
+    public String fetchField(String field) {
+        // Fetches the value of a field.
+        // If the field does not exist, returns null.
+
+        for (int i = 0; i < fields.size(); i++) {
+            if (fields.get(i) == field) {
+                return values.get(i);
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<String> getValuesArray() {
+        return values;
     }
 }
