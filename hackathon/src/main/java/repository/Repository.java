@@ -8,5 +8,5 @@ import model.Model;
 public interface Repository {
     public ArrayList<? extends Model> find(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection);
     public Model findOne(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection);
-    public void insert(ArrayList<String> fields, Connection connection);
+    public Model insert(ArrayList<String> fields, Connection connection);
 }

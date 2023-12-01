@@ -7,14 +7,6 @@ import model.User;
 import model.Team;
 
 public class UserRepository implements Repository {
-    public ArrayList<User> find(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
-        return new ArrayList<User>();
-    }
-
-    public User findOne(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
-        return new User(new ArrayList<String>());
-    }
-
     private String getTeamNameFromID(String team_id, Connection connection) {
         // Returns the team name with id id, or null if it does not exists
         ArrayList<ArrayList<String>> teamData = connection.readCsv(connection.teamsFile);
@@ -55,40 +47,135 @@ public class UserRepository implements Repository {
         return member_count;
     }
 
-    public void insert(ArrayList<String> fields, Connection connection) {
+    private void displayException(String message) {
+        try {
+            throw new Exception(message);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private ArrayList<User> findBounded(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection, Integer bound) {
+        // Validation
+        if ((field != null) && (filter == null)) {
+            displayException("Field to use filter not specified");
+            return null;
+        }
+        if ((field == null) && (filter != null)) {
+            displayException("Filter to use on field not specified");
+            return null;
+        }
+        if (join_table) {
+            if (join_table_name == null) {
+                displayException("Table to join with not specified");
+                return null;
+            }
+            if (join_table_name.toLowerCase() != "team") {
+                displayException("Invalid table to join with");
+                return null;
+            }
+        }
+        if ((join_table == null) && (join_table_name != null)) {
+            displayException("Whether or not to join not specified");
+            return null;
+        }
+        
+        if (field == "") {
+            displayException("Field must not be empty");
+            return null;
+        }
+        if (filter.length != 2) {
+            displayException("Invalid filter format");
+            return null;
+        }
+
+        // Get list of Users to compare with
+        ArrayList<User> user_list = new ArrayList<User>();
+        if (join_table) {
+            ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
+            ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
+
+            for (ArrayList<String> u : users) {
+                for (ArrayList<String> t : teams) {
+                    User nu = new User(u);
+                    Team nt = new Team(t);
+                    if (nu.fetchField("ID Team") == nt.fetchField("id")) {
+                        User joined_data = nu;
+                        for (int i = 0; i < nt.fields.size(); i++) {
+                            nu.fields.add(nt.fields.get(i));
+                            nu.values.add(nu.values.get(i));
+                        }
+                        user_list.add(joined_data);
+                    }
+                }
+            }
+
+        } else {
+            ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
+
+            for (ArrayList<String> u : users) {
+                user_list.add(new User(u));
+            }
+        }
+
+        ArrayList<User> condition_fulfilled = new ArrayList<User>();;
+        for (User current_user : user_list) {
+            Boolean add = current_user.checkCondition(filter[0], field, filter[1]);
+            if (add == null) {
+                displayException("Invalid filter format");
+                return null;
+            }
+            if (add) {
+                condition_fulfilled.add(current_user);
+                if ((bound != null) && (condition_fulfilled.size() == bound)) {
+                    return condition_fulfilled;
+                }
+            }
+        }
+
+        return condition_fulfilled;
+    }
+
+    public ArrayList<User> find(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
+        ArrayList<User> valid_users = findBounded(field, filter, join_table, join_table_name, connection, null);
+
+        if (valid_users.size() == 0) {
+            return null;
+        }
+        return valid_users;
+    }
+
+    public User findOne(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
+        ArrayList<User> valid_user = findBounded(field, filter, join_table, join_table_name, connection, 1);
+
+        if (valid_user.size() == 0) {
+            return null;
+        }
+        return valid_user.get(0);
+    }
+
+    public User insert(ArrayList<String> fields, Connection connection) {
         User current_user = new User(fields);
 
         String user_NIM = current_user.fetchField("NIM");
         String user_team = current_user.fetchField("ID Team");
         String user_team_name = getTeamNameFromID("ID Team", connection);
 
+        // Validation
         if (user_team_name == null) {
-            try {
-                throw new Exception("Team with name " + user_team_name + " does not exist");
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            return;
+            displayException("Team with name " + user_team_name + " does not exist");
+            return null;
         }
-        
         if (existingNIM(user_NIM, connection)) {
-            try {
-                throw new Exception("User with NIM " + user_NIM + " already exists");
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            return;
+            displayException("User with NIM " + user_NIM + " already exists");
+            return null;
         }
-        
-        if (existingTeamMemberCount(user_team, connection) >= 3) {
-            try {
-                throw new Exception("Team " + user_team_name + " is already full!");
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            return;
+        if (existingTeamMemberCount(user_team, connection) >= Team.max_members) {
+            displayException("Team " + user_team_name + " is already full!");
+            return null;
         }
 
-        connection.writeCsv(connection.userFile, current_user.getValuesArray());
+        connection.writeCsv(connection.userFile, current_user.values);
+        return current_user;
     }
 }
