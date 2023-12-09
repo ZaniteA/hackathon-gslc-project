@@ -119,7 +119,7 @@ public class UserRepository implements Repository {
         return valid_user.get(0);
     }
 
-    public User insert(ArrayList<String> fields, Connection connection) {
+    public static User insert(ArrayList<String> fields, Connection connection) {
         if (fields.size() != User.user_fields.size()) {
             RepositoryUtil.displayException("Invalid fields format");
             return null;
