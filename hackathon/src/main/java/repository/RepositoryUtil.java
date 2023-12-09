@@ -9,7 +9,7 @@ public class RepositoryUtil {
         }
     }
 
-    protected static Boolean validateFindParameters(String field, String[] filter, Boolean join_table, String join_table_name) {
+    protected static Boolean validateFindParameters(int table, String field, String[] filter, Boolean join_table, String join_table_name) {
         if ((field != null) && (filter == null)) {
             displayException("Field to use filter not specified");
             return false;
@@ -23,7 +23,7 @@ public class RepositoryUtil {
                 displayException("Table to join with not specified");
                 return false;
             }
-            if (join_table_name.toLowerCase() != "team") {
+            if ((table == 1 && join_table_name.toLowerCase() != "user") || (table == 2 && join_table_name.toLowerCase() != "team")) {
                 displayException("Invalid table to join with");
                 return false;
             }

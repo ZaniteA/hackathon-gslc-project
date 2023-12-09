@@ -9,7 +9,7 @@ import model.Team;
 
 public class UserRepository implements Repository {
     private String getTeamIDFromName(String team_name, Connection connection) {
-        // Returns the team name with id id, or null if it does not exists
+        // Returns the ID of the given team name, or null if it does not exists
         ArrayList<ArrayList<String>> teamData = connection.readCsv(connection.teamsFile);
         for (ArrayList<String> row : teamData) {
             Team current_team = new Team(row);
@@ -50,7 +50,7 @@ public class UserRepository implements Repository {
 
     private ArrayList<User> findBounded(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection, Integer bound) {
         // Validation
-        if (!RepositoryUtil.validateFindParameters(field, filter, join_table, join_table_name)) {
+        if (!RepositoryUtil.validateFindParameters(1, field, filter, join_table, join_table_name)) {
             return null;
         }
 
@@ -129,14 +129,15 @@ public class UserRepository implements Repository {
 
         String user_NIM = current_user.fetchField("NIM");
         String user_team_name = current_user.fetchField("ID Team"); // Temporarily store in field ID Team
-        String user_team_id = getTeamIDFromName("ID Team", connection);
+        String user_team_id = getTeamIDFromName(user_team_name, connection);
 
         // Validation
         if (existingNIM(user_NIM, connection)) {
             RepositoryUtil.displayException("User with NIM " + user_NIM + " already exists");
             return null;
         }
-        if (user_team_id == null) {
+        
+        if (user_team_id == null) { // If user team is not inserted yet, create the team
             TeamRepository team_repo = new TeamRepository();
             Team new_team = team_repo.insert(new ArrayList<String>(Arrays.asList(user_team_name)), connection);
             user_team_id = new_team.fetchField("id");

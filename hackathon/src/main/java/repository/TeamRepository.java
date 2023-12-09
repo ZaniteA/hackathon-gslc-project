@@ -9,7 +9,7 @@ import model.Team;
 
 public class TeamRepository implements Repository {
     private Boolean existingTeamName(String team_name, Connection connection) {
-        ArrayList<ArrayList<String>> team_data = connection.readCsv(connection.userFile);
+        ArrayList<ArrayList<String>> team_data = connection.readCsv(connection.teamsFile);
         for (ArrayList<String> row : team_data) {
             Team current_team = new Team(row);
             if (current_team.checkCondition("=", "Nama", team_name)) {
@@ -20,7 +20,7 @@ public class TeamRepository implements Repository {
     }
 
     private Integer getMaximumTeamID(Connection connection) {
-        ArrayList<ArrayList<String>> team_data = connection.readCsv(connection.userFile);
+        ArrayList<ArrayList<String>> team_data = connection.readCsv(connection.teamsFile);
         Integer maximum_id = 0;
         for (ArrayList<String> row : team_data) {
             Team current_team = new Team(row);
@@ -34,7 +34,7 @@ public class TeamRepository implements Repository {
 
     private ArrayList<Team> findBounded(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection, Integer bound) {
         // Validation
-        if (!RepositoryUtil.validateFindParameters(field, filter, join_table, join_table_name)) {
+        if (!RepositoryUtil.validateFindParameters(2, field, filter, join_table, join_table_name)) {
             return null;
         }
 
@@ -104,7 +104,7 @@ public class TeamRepository implements Repository {
     }
 
     public Team insert(ArrayList<String> fields, Connection connection) {
-        if (fields.size() != User.user_fields.size() - 1) {
+        if (fields.size() != Team.team_fields.size() - 1) {
             RepositoryUtil.displayException("Invalid fields format");
             return null;
         }
@@ -121,7 +121,7 @@ public class TeamRepository implements Repository {
         ArrayList<String> new_team_values = new ArrayList<String>(Arrays.asList(team_id.toString(), team_name));
         Team current_team = new Team(new_team_values);
 
-        connection.writeCsv(connection.userFile, current_team.values);
+        connection.writeCsv(connection.teamsFile, current_team.values);
         return current_team;
     }
 
