@@ -103,8 +103,13 @@ public class TeamRepository implements Repository {
         return valid_team.get(0);
     }
 
+<<<<<<< HEAD
     public Team insert(ArrayList<String> fields, Connection connection) {
         if (fields.size() != Team.team_fields.size() - 1) {
+=======
+    public static Team insert(ArrayList<String> fields, Connection connection) {
+        if (fields.size() != User.user_fields.size() - 1) {
+>>>>>>> 16a77f33c8d6d40d7881539581ae05a871d85376
             RepositoryUtil.displayException("Invalid fields format");
             return null;
         }
