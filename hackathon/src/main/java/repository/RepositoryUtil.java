@@ -32,7 +32,7 @@ public class RepositoryUtil {
                 return false;
             }
             if (join_table) {
-                if ((table == 1 && join_table_name.toLowerCase() != "user") || (table == 2 && join_table_name.toLowerCase() != "team")) {
+                if ((table == 1 && !join_table_name.toLowerCase().equals("team")) || (table == 2 && !join_table_name.toLowerCase().equals("user"))) {
                     displayException("Invalid table to join with");
                     return false;
                 }
@@ -43,7 +43,7 @@ public class RepositoryUtil {
             return false;
         }
         
-        if (field.equals("")) {
+        if ((field != null) && (field.equals(""))) {
             displayException("Field must not be empty");
             return false;
         }

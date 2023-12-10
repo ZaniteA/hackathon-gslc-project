@@ -67,7 +67,7 @@ public class TeamRepository implements Repository {
                     Team nt = new Team(t);
                     User nu = new User(u);
                     if (nu.fetchField("ID Team").equals(nt.fetchField("id"))) {
-                        Team joined_data = nt;
+                        Team joined_data = new Team(new ArrayList<String>(t));
                         for (int i = 0; i < nu.fields.size(); i++) {
                             joined_data.fields.add(nu.fields.get(i));
                             joined_data.values.add(nu.values.get(i));

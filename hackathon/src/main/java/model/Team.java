@@ -12,6 +12,6 @@ public class Team extends Model {
 
     // Constructor, calls the parent constructor with default fields.
     public Team(ArrayList<String> values) {
-        super(team_fields, values);
+        super(new ArrayList<String>(team_fields), values);
     }
 }

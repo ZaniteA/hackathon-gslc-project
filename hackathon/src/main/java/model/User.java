@@ -11,6 +11,6 @@ public class User extends Model {
 
     // Constructor, calls the parent constructor with default fields.
     public User(ArrayList<String> values) {
-        super(user_fields, values);
+        super(new ArrayList<String>(user_fields), values);
     }
 }

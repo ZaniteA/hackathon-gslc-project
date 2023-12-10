@@ -45,15 +45,15 @@ public class UserRepository implements Repository {
 
     // Returns the number of members of a team with the specified team ID.
     private Integer existingTeamMemberCount(String team_id, Connection connection) {
-        // Fetch team data from CSV file
-        ArrayList<ArrayList<String>> teamData = connection.readCsv(connection.teamsFile);
+        // Fetch user data from CSV file
+        ArrayList<ArrayList<String>> userData = connection.readCsv(connection.userFile);
 
         Integer member_count = 0;
-        for (ArrayList<String> row : teamData) {
-            Team current_team = new Team(row);
+        for (ArrayList<String> row : userData) {
+            User current_user = new User(row);
             
             // Check if the team ID is equal to the one that we want to count
-            if (current_team.checkCondition("=", "id", team_id)) {
+            if (current_user.checkCondition("=", "ID Team", team_id)) {
                 member_count++;
             }
         }
@@ -85,7 +85,7 @@ public class UserRepository implements Repository {
                     User nu = new User(u);
                     Team nt = new Team(t);
                     if (nu.fetchField("ID Team").equals(nt.fetchField("id"))) {
-                        User joined_data = nu;
+                        User joined_data = new User(new ArrayList<String>(u));
                         for (int i = 0; i < nt.fields.size(); i++) {
                             joined_data.fields.add(nt.fields.get(i));
                             joined_data.values.add(nt.values.get(i));
@@ -192,6 +192,9 @@ public class UserRepository implements Repository {
             return null;
         }
 
+        // Change "ID Team" field to actually store ID Team
+        current_user.values.set(2, user_team_id);
+
         // Write the User object to the CSV file and return the object
         connection.writeCsv(connection.userFile, current_user.values);
         return current_user;
@@ -210,7 +213,7 @@ public class UserRepository implements Repository {
 
         // User to be deleted must exist
         String[] condition = {"=", nim};
-        User to_delete = findOne("nim", condition, null, null, connection);
+        User to_delete = findOne("NIM", condition, null, null, connection);
         if (to_delete == null) {
             RepositoryUtil.displayException("User with NIM " + nim + " not found");
             return false;

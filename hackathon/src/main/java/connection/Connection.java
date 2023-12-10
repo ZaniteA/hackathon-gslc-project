@@ -88,7 +88,6 @@ public class Connection {
 		
 		try (FileWriter fw = new FileWriter(filePath)) {
 			BufferedWriter out = new BufferedWriter(fw);
-			out.newLine();
 			out.close();
 		} catch (Exception e) {
 			// If an error occurred while clearing the file

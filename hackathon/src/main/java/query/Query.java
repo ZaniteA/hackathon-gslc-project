@@ -50,17 +50,13 @@ public class Query {
             // Parse condition into filter variables
             String[] raw_filter = condition.split(";");
 
-            for (String s : raw_filter) {
-                System.out.println(s);
-            }
-
             if (raw_filter.length == 3) {
                 field = raw_filter[0];
                 filter[0] = raw_filter[1];
                 filter[1] = raw_filter[2];
                 
             } else if (raw_filter.length == 5) {
-                if (raw_filter[3] != "join") {
+                if (!raw_filter[3].equals("join")) {
                     RepositoryUtil.displayException("Invalid filter format");
                     return false;    
                 }
@@ -92,6 +88,8 @@ public class Query {
             }
 
             for (User u : to_show) {
+                // for (String s : u.fields) System.out.println(s);
+                // for (String s : u.values) System.out.println(s);
                 for (int i = 0; i < u.fields.size(); i++) {
                     System.out.println(u.fields.get(i) + ": " + u.values.get(i));
                 }

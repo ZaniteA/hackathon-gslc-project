@@ -57,7 +57,8 @@ public class Menu {
 		System.out.println("Hello, what would you like to do?");
 		System.out.println("1. Insert Data");
 		System.out.println("2. Show Data");
-		System.out.println("3. Exit");
+		System.out.println("3. Delete Data");
+		System.out.println("4. Exit");
 		System.out.print("> ");
 		
 		// Get user input
@@ -69,8 +70,10 @@ public class Menu {
 			sect = 2;
 		} else if(resp == 2) { // Show data
 			sect = 3;
-		} else if(resp == 3) { // Exit program
+		} else if(resp == 3) { // Delete data
 			sect = 4;
+		} else if (resp == 4) { // Exit program
+			sect = 5;
 		} else { // Unidentified input
 			generateError("Undefined menu section");
 		}
@@ -132,6 +135,10 @@ public class Menu {
 			System.out.println("Data successfully inserted");
 		}
 		
+		System.out.println("Press Enter to continue");
+		System.out.print("> ");
+		String buf = userInput.nextLine();
+
 		clearScreen();
 		
 		// Back to Main Menu
@@ -188,6 +195,8 @@ public class Menu {
 		System.out.print("> ");
 		String buf = userInput.nextLine();
 
+		clearScreen();
+
 		// Back to Main Menu
 		sect = 1;
 
@@ -207,6 +216,7 @@ public class Menu {
 		
 		// Get table
 		int table = userInput.nextInt();
+		String buf = userInput.nextLine();
 
 		if (table != 1 && table != 2) {
 			generateError("Invalid table");
@@ -216,10 +226,12 @@ public class Menu {
 		String key_data;
 		
 		if (table == 1) {
-			System.out.print("Enter User's NIM: ");
+			System.out.println("Enter User's NIM: ");
+			System.out.print("> ");
 			key_data = userInput.nextLine();
 		} else {
-			System.out.print("Enter Team Name: ");
+			System.out.println("Enter Team Name: ");
+			System.out.print("> ");
 			key_data = userInput.nextLine();
 		}
 		
@@ -229,6 +241,10 @@ public class Menu {
 			// Display success message
 			System.out.println("Data successfully deleted");
 		}
+
+		System.out.println("Press Enter to continue");
+		System.out.print("> ");
+		buf = userInput.nextLine();
 
 		clearScreen();
 		
