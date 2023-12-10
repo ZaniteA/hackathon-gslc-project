@@ -74,7 +74,7 @@ public class UserRepository implements Repository {
 
         // Get list of Users to compare with
         ArrayList<User> user_list = new ArrayList<User>();
-        if (join_table) {
+        if ((join_table != null) && join_table) {
             // Join the tables if needed
             ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
             ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
@@ -194,13 +194,14 @@ public class UserRepository implements Repository {
     }
 
     // Deletes a User with the specified NIM from the database.
-    public void delete(String nim, Connection connection) {
+    // Returns true if the deletion was successful, and false otherwise.
+    public Boolean delete(String nim, Connection connection) {
         // Validation
 
         // NIM must not be null
         if (nim == null) {
             RepositoryUtil.displayException("NIM to delete not specified");
-            return;
+            return false;
         }
 
         // User to be deleted must exist
@@ -208,7 +209,7 @@ public class UserRepository implements Repository {
         User to_delete = findOne("nim", condition, null, null, connection);
         if (to_delete == null) {
             RepositoryUtil.displayException("User with NIM " + nim + " not found");
-            return;
+            return false;
         }
 
         // Rewrite the CSV file, excluding the User that is to be deleted
@@ -222,5 +223,7 @@ public class UserRepository implements Repository {
             }
             connection.writeCsv(connection.userFile, u);
         }
+
+        return true;
     }
 }

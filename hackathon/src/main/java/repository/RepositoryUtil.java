@@ -5,7 +5,7 @@ public class RepositoryUtil {
 
     // Displays an exception.
     // This is just to shorten the validation code.
-    protected static void displayException(String message) {
+    public static void displayException(String message) {
         try {
             throw new Exception(message);
         } catch (Exception e) {
@@ -45,7 +45,7 @@ public class RepositoryUtil {
             displayException("Field must not be empty");
             return false;
         }
-        if (filter.length != 2) {
+        if ((filter != null) && (filter.length != 2)) {
             displayException("Invalid filter format");
             return false;
         }

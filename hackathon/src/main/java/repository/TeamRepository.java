@@ -162,13 +162,14 @@ public class TeamRepository implements Repository {
     }
 
     // Deletes a Team with the specified team name from the database.
-    public void delete(String team_name, Connection connection) {
+    // Returns true if the deletion was successful, and false otherwise.
+    public Boolean delete(String team_name, Connection connection) {
         // Validation
 
         // Team name must not be null
         if (team_name == null) {
             RepositoryUtil.displayException("Team name to delete not specified");
-            return;
+            return false;
         }
 
         // Team to be deleted must exist
@@ -176,7 +177,7 @@ public class TeamRepository implements Repository {
         Team to_delete = findOne("Nama", condition, null, null, connection);
         if (to_delete == null) {
             RepositoryUtil.displayException("Team with name " + team_name + " not found");
-            return;
+            return false;
         }
 
         // Rewrite the CSV file, excluding the Team that is to be deleted
@@ -190,6 +191,8 @@ public class TeamRepository implements Repository {
             }
             connection.writeCsv(connection.teamsFile, t);
         }
+
+        return true;
     }
 
 }

@@ -3,6 +3,8 @@ package menu;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import query.Query;
+
 public class Menu {
 	// Class that displays the menu to the user
 	// and bridges the interaction between the user and the other classes.
@@ -11,6 +13,7 @@ public class Menu {
 	static Boolean failed;
 	static String errorMessage;
 	static Scanner userInput = new Scanner(System.in);
+	static Query query = new Query();
 	
 	/*
 	 * List of Sections:
@@ -25,6 +28,12 @@ public class Menu {
 	private static void clearScreen() {
 		System.out.print("\033[H\033[2J");  
 	    System.out.flush();
+	}
+
+	// Generates an error, which will be displayed with printError().
+	private static void generateError(String message) {
+		failed = true;
+		errorMessage = message;
 	}
 	
 	// Prints any error message that might have popped up.
@@ -63,8 +72,7 @@ public class Menu {
 		} else if(resp == 3) { // Exit program
 			sect = 4;
 		} else { // Unidentified input
-			errorMessage = "Undefined menu section";
-			failed = true;
+			generateError("Undefined menu section");
 		}
 		
 		clearScreen();
@@ -113,16 +121,16 @@ public class Menu {
 			fields.add(tmp);
 
 		} else {
-			failed = true;
-			errorMessage = "Invalid table";
+			generateError("Invalid table");
 			return;
 		}
 		
-		// TODO: Create this kind of function in Query function
-		// Query.insert(int table, ArrayList<String> Field) 
-		
-		// Display success message
-		System.out.println("Data successfully inserted");
+		if (!query.insert(table, fields)) {
+			generateError("Error occured during insertion");
+		} else {
+			// Display success message
+			System.out.println("Data successfully inserted");
+		}
 		
 		clearScreen();
 		
@@ -147,8 +155,7 @@ public class Menu {
 		int table = userInput.nextInt();
 
 		if (table != 1 && table != 2) {
-			failed = true;
-			errorMessage = "Invalid Table";
+			generateError("Invalid table");
 			return;
 		}
 		
@@ -162,22 +169,28 @@ public class Menu {
 		int stat = userInput.nextInt();
 		userInput.nextLine();
 		
-		String cond = "";
+		String cond = null;
 		
 		if (stat == 1) {
 			System.out.println("Add condition (seperate by semicolon ';')");
+			System.out.println("Valid formats include:");
+			System.out.println("[field];[operator];[value]");
+			System.out.println("[field];[operator];[value];join;[table name]");
 			System.out.print("> ");
 			cond = userInput.nextLine();
 		}
 		
-		// TODO: Show the table
-		// Query.show(int table, int stat, String cond)
-		
-		clearScreen();
-		
+		if (!query.show(table, cond)) {
+			generateError("Error occured during display");
+		}
+
+		System.out.println("Press Enter to continue");
+		System.out.print("> ");
+		String buf = userInput.nextLine();
+
 		// Back to Main Menu
 		sect = 1;
-		
+
 		return;
 	}
 	
@@ -196,8 +209,7 @@ public class Menu {
 		int table = userInput.nextInt();
 
 		if (table != 1 && table != 2) {
-			failed = true;
-			errorMessage = "Invalid Table";
+			generateError("Invalid table");
 			return;
 		}
 		
@@ -211,9 +223,13 @@ public class Menu {
 			key_data = userInput.nextLine();
 		}
 		
-		// TODO: Create this kind of function in Query function
-		// Query.delete(table, key_data);
-		
+		if (!query.delete(table, key_data)) {
+			generateError("Error occurred during deletion");
+		} else {
+			// Display success message
+			System.out.println("Data successfully deleted");
+		}
+
 		clearScreen();
 		
 		// Back to Main Menu
