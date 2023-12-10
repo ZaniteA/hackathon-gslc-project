@@ -7,16 +7,18 @@ import repository.UserRepository;
 import repository.TeamRepository;
 
 public class Query {
-    // Facade class for Repository
+    // Facade class for Repository.
+    // All user queries are handled through the Query class.
 	
     Connection conn = Connection.getInstance();
     UserRepository UR = new UserRepository();
     TeamRepository TR = new TeamRepository();
 
-    // table = 1, user
-    // table = 2, team
-    // will return true if the insert successfull
-    boolean insert(int table, ArrayList<String> fields) {
+    // Table = 1: user
+    // Table = 2: team
+    // Inserts data into the specified table.
+    // Returns true if the insert was successful, and false otherwise.
+    Boolean insert(int table, ArrayList<String> fields) {
         if (table == 1) {
             if (UR.insert(fields, conn) != null) return true;
             return false;
@@ -26,7 +28,6 @@ public class Query {
         } else {
             return false;
         }
-        return true;
     }
 
     /* soon...

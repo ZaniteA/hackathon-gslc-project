@@ -4,35 +4,42 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Menu {
+	// Class that displays the menu to the user
+	// and bridges the interaction between the user and the other classes.
+
 	static int sect;
 	static Boolean failed;
 	static String errorMessage;
 	static Scanner userInput = new Scanner(System.in);
 	
 	/*
-	 * List of Section:
+	 * List of Sections:
 	 * 1 -> Main Menu
 	 * 2 -> Insert Data
 	 * 3 -> Show Data
 	 * 4 -> Delete Data
 	 * 5 -> Exit
-	 * 
 	 */
 	
+	// Clears the terminal screen.
 	private static void clearScreen() {
 		System.out.print("\033[H\033[2J");  
 	    System.out.flush();
 	}
 	
+	// Prints any error message that might have popped up.
 	private static void printError() {
-		// Only print error message if faile boolean is on
-		if(failed) {
+		// Only print error message if failed boolean is on
+		if (failed) {
 			System.out.println("Previous query failed, reason: " + errorMessage);
+
+			// Reset failed status
 			errorMessage = "";
 			failed = false;
 		}
 	}
 	
+	// Displays the home menu.
 	private static void homeMenu() {
 		// Print previous error (if any)
 		printError();
@@ -65,6 +72,7 @@ public class Menu {
 		return;
 	}
 	
+	// Displays the insert data menu.
 	private static void insertMenu() {
 		// Print previous error (if any)
 		printError();
@@ -86,20 +94,24 @@ public class Menu {
 		String tmp;
 		
 		// Get data from user
-		if(table == 1) {
+		if (table == 1) {
 			System.out.print("Add NIM: ");
 			tmp = userInput.nextLine();
 			fields.add(tmp);
+
 			System.out.print("Add Name: ");
 			tmp = userInput.nextLine();
 			fields.add(tmp);
+
 			System.out.print("Add Team: ");
 			tmp = userInput.nextLine();
 			fields.add(tmp);
-		} else if(table == 2) {
+
+		} else if (table == 2) {
 			System.out.print("Add Team Name: ");
 			tmp = userInput.nextLine();
 			fields.add(tmp);
+
 		} else {
 			failed = true;
 			errorMessage = "Invalid table";
@@ -109,7 +121,7 @@ public class Menu {
 		// TODO: Create this kind of function in Query function
 		// Query.insert(int table, ArrayList<String> Field) 
 		
-		// Success Message
+		// Display success message
 		System.out.println("Data successfully inserted");
 		
 		clearScreen();
@@ -120,6 +132,7 @@ public class Menu {
 		return;
 	}
 	
+	// Displays the show data menu.
 	private static void showMenu() {
 		// Print previous error (if any)
 		printError();
@@ -133,13 +146,13 @@ public class Menu {
 		// Get table
 		int table = userInput.nextInt();
 
-		if(table != 1 && table != 2) {
+		if (table != 1 && table != 2) {
 			failed = true;
 			errorMessage = "Invalid Table";
 			return;
 		}
 		
-		// Ask if there user want some special condition
+		// Ask if the user wants to filter by some special condition
 		System.out.println("Want to filter by condition?");
 		System.out.println("1. Yes");
 		System.out.println("2. No");
@@ -151,7 +164,7 @@ public class Menu {
 		
 		String cond = "";
 		
-		if(stat == 1) {
+		if (stat == 1) {
 			System.out.println("Add condition (seperate by semicolon ';')");
 			System.out.print("> ");
 			cond = userInput.nextLine();
@@ -168,6 +181,7 @@ public class Menu {
 		return;
 	}
 	
+	// Shows the delete data menu.
 	public static void deleteMenu() {
 		// Print previous error (if any)
 		printError();
@@ -181,7 +195,7 @@ public class Menu {
 		// Get table
 		int table = userInput.nextInt();
 
-		if(table != 1 && table != 2) {
+		if (table != 1 && table != 2) {
 			failed = true;
 			errorMessage = "Invalid Table";
 			return;
@@ -189,7 +203,7 @@ public class Menu {
 		
 		String key_data;
 		
-		if(table == 1) {
+		if (table == 1) {
 			System.out.print("Enter User's NIM: ");
 			key_data = userInput.nextLine();
 		} else {
@@ -208,20 +222,22 @@ public class Menu {
 		return;
 	}
 	
+	// Displays the correct menu section while the user has not exited the program
 	public static void runMenu() {
 		sect = 1;
 		failed = false;
-		while(sect != 5) {
+		while (sect != 5) {
 			// Show the correct menu section
-			if(sect == 1) {
+			if (sect == 1) {
 				homeMenu();
-			} else if(sect == 2) {
+			} else if (sect == 2) {
 				insertMenu();
-			} else if(sect == 3) {
+			} else if (sect == 3) {
 				showMenu();
-			} else if(sect == 4) {
+			} else if (sect == 4) {
 				deleteMenu();
 			} else {
+				// Should not happen in normal circumstances
 				System.err.println("Invalid sect variable on Menu function");
 				break;
 			}
@@ -229,6 +245,10 @@ public class Menu {
 		System.out.println("Thank you for your visit!");
 	}
 
+	// An instance of the class is not supposed to be needed
+	// as all members are static
 	private Menu() {
+
 	}
+	
 }

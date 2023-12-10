@@ -1,8 +1,5 @@
 package main;
 
-import java.util.ArrayList;
-
-import connection.Connection;
 import menu.Menu;
 
 public class Main {

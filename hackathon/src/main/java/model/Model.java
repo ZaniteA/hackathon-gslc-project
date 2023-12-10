@@ -3,9 +3,13 @@ package model;
 import java.util.ArrayList;
 
 public class Model {
-    public ArrayList<String> fields;
-    public ArrayList<String> values;
+    // Superclass of Team and User.
+    // Acts as a general "row" in SQL-like database.
+    // Works somewhat like a dictionary, but with fixed fields.
 
+    public ArrayList<String> fields, values;
+
+    // Constructor of a Model with particular `fields` and `values`.
     public Model(ArrayList<String> fields, ArrayList<String> values) {
         // Ensure that fields and values have the same size
         try {
@@ -18,9 +22,10 @@ public class Model {
         this.values = values;
     }
 
+    // Checks whether or not the expression (`field` `operator` `value`) is true.
+    // `operator` can be "=" or "!=".
+    // Returns null if the operator or field is invalid.
     public Boolean checkCondition(String operator, String field, String value) {
-        // Checks condition on a model.
-
         // No operator to check
         if (operator == null) {
             return true;
@@ -35,20 +40,17 @@ public class Model {
         // Perform operator check
         if (operator == "=") {
             return (value == compare_value);
-
         } else if (operator == "!=") {
             return (value != compare_value);
-
         } else {
             // Invalid operator
             return null;
         }
     }
 
+    // Fetches the value of a field.
+    // If the field does not exist, returns null.
     public String fetchField(String field) {
-        // Fetches the value of a field.
-        // If the field does not exist, returns null.
-
         for (int i = 0; i < fields.size(); i++) {
             if (fields.get(i) == field) {
                 return values.get(i);

@@ -8,19 +8,29 @@ import model.User;
 import model.Team;
 
 public class TeamRepository implements Repository {
+    // Implements a team repository.
+
+    // Returns true if the specified team name already exists in the database.
     private Boolean existingTeamName(String team_name, Connection connection) {
+        // Fetch team data from CSV file
         ArrayList<ArrayList<String>> team_data = connection.readCsv(connection.teamsFile);
+
         for (ArrayList<String> row : team_data) {
             Team current_team = new Team(row);
             if (current_team.checkCondition("=", "Nama", team_name)) {
+                // Found team with specified team name
                 return true;
             }
         }
         return false;
     }
 
+    // Gets the maximum team ID that exists in the database.
+    // Used to auto-increment the team IDs.
     private Integer getMaximumTeamID(Connection connection) {
+        // Fetch team data from CSV file
         ArrayList<ArrayList<String>> team_data = connection.readCsv(connection.teamsFile);
+
         Integer maximum_id = 0;
         for (ArrayList<String> row : team_data) {
             Team current_team = new Team(row);
@@ -32,8 +42,14 @@ public class TeamRepository implements Repository {
         return maximum_id;
     }
 
+    // Finds at most `bound` teams from the database that specifies the conditions:
+    // - `field` fulfills the conditions in `filter`, if both are not null.
+    // - the table is first joined with `join_table_name`, if both are not null and `join_table` is true.
+    // If `bound` is null, it is considered to be infinite (unbounded).
+    // The teams will be returned in an ArrayList.
+    // Returns null if the parameters are invalid.
     private ArrayList<Team> findBounded(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection, Integer bound) {
-        // Validation
+        // Validate parameters
         if (!RepositoryUtil.validateFindParameters(2, field, filter, join_table, join_table_name)) {
             return null;
         }
@@ -41,9 +57,11 @@ public class TeamRepository implements Repository {
         // Get list of Teams to compare with
         ArrayList<Team> team_list = new ArrayList<Team>();
         if (join_table) {
+            // Join the tables if needed
             ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
             ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
 
+            // Compute the cross product of both tables and check if the join condition is fulfilled
             for (ArrayList<String> t : teams) {
                 for (ArrayList<String> u : users) {
                     Team nt = new Team(t);
@@ -60,6 +78,7 @@ public class TeamRepository implements Repository {
             }
 
         } else {
+            // Fetch data from CSV file
             ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
 
             for (ArrayList<String> t : teams) {
@@ -67,7 +86,8 @@ public class TeamRepository implements Repository {
             }
         }
 
-        ArrayList<Team> condition_fulfilled = new ArrayList<Team>();;
+        // Filter the results based on the filter condition
+        ArrayList<Team> condition_fulfilled = new ArrayList<Team>();
         for (Team current_team : team_list) {
             Boolean add = current_team.checkCondition(filter[0], field, filter[1]);
             if (add == null) {
@@ -76,15 +96,21 @@ public class TeamRepository implements Repository {
             }
             if (add) {
                 condition_fulfilled.add(current_team);
+                // If the size bound has been reached, return immediately
                 if ((bound != null) && (condition_fulfilled.size() == bound)) {
                     return condition_fulfilled;
                 }
             }
         }
 
+        // If the size was unbounded, or the bound has not been reached
         return condition_fulfilled;
     }
 
+    // Returns an ArrayList of Teams fulfilling the conditions:
+    // - `field` fulfills the conditions in `filter`, if both are not null.
+    // - the table is first joined with `join_table_name`, if both are not null and `join_table` is true.
+    // If no Teams fulfilled the condition, returns null.
     public ArrayList<Team> find(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
         ArrayList<Team> valid_teams = findBounded(field, filter, join_table, join_table_name, connection, null);
 
@@ -94,6 +120,10 @@ public class TeamRepository implements Repository {
         return valid_teams;
     }
 
+    // Returns one Team fulfilling the conditions:
+    // - `field` fulfills the conditions in `filter`, if both are not null.
+    // - the table is first joined with `join_table_name`, if both are not null and `join_table` is true.
+    // If no Teams fulfilled the condition, returns null.
     public Team findOne(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
         ArrayList<Team> valid_team = findBounded(field, filter, join_table, join_table_name, connection, 1);
 
@@ -103,34 +133,45 @@ public class TeamRepository implements Repository {
         return valid_team.get(0);
     }
 
+    // Inserts the specified fields into the database as a Team.
+    // Returns the new Team, or null if the specified data was invalid.
     public Team insert(ArrayList<String> fields, Connection connection) {
+        // Validate fields
+
+        // Number of fields (except ID)
         if (fields.size() != Team.team_fields.size() - 1) {
             RepositoryUtil.displayException("Invalid fields format");
             return null;
         }
 
+        // Team name must be unique
         String team_name = fields.get(0);
-
-        // Validation
         if (existingTeamName(team_name, connection)) {
             RepositoryUtil.displayException("Team with name " + team_name + " already exists");
             return null;
         }
 
+        // Get auto-incremented ID and construct the Team object
         Integer team_id = getMaximumTeamID(connection) + 1;
         ArrayList<String> new_team_values = new ArrayList<String>(Arrays.asList(team_id.toString(), team_name));
         Team current_team = new Team(new_team_values);
 
+        // Write the Team object to the CSV file and return the object
         connection.writeCsv(connection.teamsFile, current_team.values);
         return current_team;
     }
 
+    // Deletes a Team with the specified team name from the database.
     public void delete(String team_name, Connection connection) {
+        // Validation
+
+        // Team name must not be null
         if (team_name == null) {
             RepositoryUtil.displayException("Team name to delete not specified");
             return;
         }
 
+        // Team to be deleted must exist
         String[] condition = {"=", team_name};
         Team to_delete = findOne("Nama", condition, null, null, connection);
         if (to_delete == null) {
@@ -138,14 +179,17 @@ public class TeamRepository implements Repository {
             return;
         }
 
+        // Rewrite the CSV file, excluding the Team that is to be deleted
         ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
         connection.clearCsv(connection.teamsFile);
         for (ArrayList<String> t : teams) {
             Team current_team = new Team(t);
             if (current_team.fetchField("Nama") == team_name) {
+                // Exclude the deleted Team
                 continue;
             }
             connection.writeCsv(connection.teamsFile, t);
         }
     }
+
 }

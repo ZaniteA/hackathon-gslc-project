@@ -1,6 +1,10 @@
 package repository;
 
 public class RepositoryUtil {
+    // Utility functions used in TeamRepository and UserRepository.
+
+    // Displays an exception.
+    // This is just to shorten the validation code.
     protected static void displayException(String message) {
         try {
             throw new Exception(message);
@@ -9,6 +13,10 @@ public class RepositoryUtil {
         }
     }
 
+    // Table = 1: user
+    // Table = 2: team
+    // Validates parameters passed to `find` or `findOne`, as outlined in the specifications.
+    // Mostly handles parameters being null inconsistently.
     protected static Boolean validateFindParameters(int table, String field, String[] filter, Boolean join_table, String join_table_name) {
         if ((field != null) && (filter == null)) {
             displayException("Field to use filter not specified");
