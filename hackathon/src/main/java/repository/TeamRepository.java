@@ -56,7 +56,7 @@ public class TeamRepository implements Repository {
 
         // Get list of Teams to compare with
         ArrayList<Team> team_list = new ArrayList<Team>();
-        if (join_table) {
+        if ((join_table != null) && join_table) {
             // Join the tables if needed
             ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
             ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
@@ -66,7 +66,7 @@ public class TeamRepository implements Repository {
                 for (ArrayList<String> u : users) {
                     Team nt = new Team(t);
                     User nu = new User(u);
-                    if (nu.fetchField("ID Team") == nt.fetchField("id")) {
+                    if (nu.fetchField("ID Team").equals(nt.fetchField("id"))) {
                         Team joined_data = nt;
                         for (int i = 0; i < nu.fields.size(); i++) {
                             joined_data.fields.add(nu.fields.get(i));
@@ -89,7 +89,11 @@ public class TeamRepository implements Repository {
         // Filter the results based on the filter condition
         ArrayList<Team> condition_fulfilled = new ArrayList<Team>();
         for (Team current_team : team_list) {
-            Boolean add = current_team.checkCondition(filter[0], field, filter[1]);
+            Boolean add = true;
+            if (filter != null) {
+                add = current_team.checkCondition(filter[0], field, filter[1]);
+            }
+
             if (add == null) {
                 RepositoryUtil.displayException("Invalid filter format");
                 return null;
@@ -114,7 +118,7 @@ public class TeamRepository implements Repository {
     public ArrayList<Team> find(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
         ArrayList<Team> valid_teams = findBounded(field, filter, join_table, join_table_name, connection, null);
 
-        if (valid_teams.size() == 0) {
+        if ((valid_teams == null) || (valid_teams.size() == 0)) {
             return null;
         }
         return valid_teams;
@@ -127,7 +131,7 @@ public class TeamRepository implements Repository {
     public Team findOne(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
         ArrayList<Team> valid_team = findBounded(field, filter, join_table, join_table_name, connection, 1);
 
-        if (valid_team.size() == 0) {
+        if ((valid_team == null) || (valid_team.size() == 0)) {
             return null;
         }
         return valid_team.get(0);
@@ -183,9 +187,12 @@ public class TeamRepository implements Repository {
         // Rewrite the CSV file, excluding the Team that is to be deleted
         ArrayList<ArrayList<String>> teams = connection.readCsv(connection.teamsFile);
         connection.clearCsv(connection.teamsFile);
+
+        // Write header
+        connection.writeCsv(connection.teamsFile, Team.team_fields);
         for (ArrayList<String> t : teams) {
             Team current_team = new Team(t);
-            if (current_team.fetchField("Nama") == team_name) {
+            if (current_team.fetchField("Nama").equals(team_name)) {
                 // Exclude the deleted Team
                 continue;
             }

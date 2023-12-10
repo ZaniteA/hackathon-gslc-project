@@ -84,7 +84,7 @@ public class UserRepository implements Repository {
                 for (ArrayList<String> t : teams) {
                     User nu = new User(u);
                     Team nt = new Team(t);
-                    if (nu.fetchField("ID Team") == nt.fetchField("id")) {
+                    if (nu.fetchField("ID Team").equals(nt.fetchField("id"))) {
                         User joined_data = nu;
                         for (int i = 0; i < nt.fields.size(); i++) {
                             joined_data.fields.add(nt.fields.get(i));
@@ -107,7 +107,11 @@ public class UserRepository implements Repository {
         // Filter the results based on the filter condition
         ArrayList<User> condition_fulfilled = new ArrayList<User>();
         for (User current_user : user_list) {
-            Boolean add = current_user.checkCondition(filter[0], field, filter[1]);
+            Boolean add = true;
+            if (filter != null) {
+                add = current_user.checkCondition(filter[0], field, filter[1]);
+            }
+
             if (add == null) {
                 RepositoryUtil.displayException("Invalid filter format");
                 return null;
@@ -132,7 +136,7 @@ public class UserRepository implements Repository {
     public ArrayList<User> find(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
         ArrayList<User> valid_users = findBounded(field, filter, join_table, join_table_name, connection, null);
 
-        if (valid_users.size() == 0) {
+        if ((valid_users == null) || (valid_users.size() == 0)) {
             return null;
         }
         return valid_users;
@@ -145,7 +149,7 @@ public class UserRepository implements Repository {
     public User findOne(String field, String[] filter, Boolean join_table, String join_table_name, Connection connection) {
         ArrayList<User> valid_user = findBounded(field, filter, join_table, join_table_name, connection, 1);
 
-        if (valid_user.size() == 0) {
+        if ((valid_user == null) || (valid_user.size() == 0)) {
             return null;
         }
         return valid_user.get(0);
@@ -215,9 +219,12 @@ public class UserRepository implements Repository {
         // Rewrite the CSV file, excluding the User that is to be deleted
         ArrayList<ArrayList<String>> users = connection.readCsv(connection.userFile);
         connection.clearCsv(connection.userFile);
+
+        // Write header
+        connection.writeCsv(connection.userFile, User.user_fields);
         for (ArrayList<String> u : users) {
             User current_user = new User(u);
-            if (current_user.fetchField("NIM") == nim) {
+            if (current_user.fetchField("NIM").equals(nim)) {
                 // Exclude the deleted User
                 continue;
             }

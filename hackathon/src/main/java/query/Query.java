@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import connection.Connection;
 import model.Team;
 import model.User;
-import repository.UserRepository;
-import repository.Repository;
 import repository.RepositoryUtil;
 import repository.TeamRepository;
+import repository.UserRepository;
 
 public class Query {
     // Facade class for Repository.
@@ -44,11 +43,16 @@ public class Query {
         // Create and validate condition
         String field = "";
         String[] filter = {"", ""};
+        Boolean join_table = false;
         String join_table_name = "";
 
         if (condition != null) {
             // Parse condition into filter variables
             String[] raw_filter = condition.split(";");
+
+            for (String s : raw_filter) {
+                System.out.println(s);
+            }
 
             if (raw_filter.length == 3) {
                 field = raw_filter[0];
@@ -64,6 +68,7 @@ public class Query {
                 field = raw_filter[0];
                 filter[0] = raw_filter[1];
                 filter[1] = raw_filter[2];
+                join_table = true;
                 join_table_name = raw_filter[4];
 
             } else {
@@ -78,7 +83,7 @@ public class Query {
             if (condition == null) { // show all
                 to_show = UR.find(null, null, null, null, conn);
             } else {
-                to_show = UR.find(field, filter, true, join_table_name, conn);
+                to_show = UR.find(field, filter, join_table, join_table_name, conn);
             }
 
             if (to_show == null) {
@@ -99,7 +104,7 @@ public class Query {
             if (condition == null) { // show all
                 to_show = TR.find(null, null, null, null, conn);
             } else {
-                to_show = TR.find(field, filter, true, join_table_name, conn);
+                to_show = TR.find(field, filter, join_table, join_table_name, conn);
             }
 
             if (to_show == null) {

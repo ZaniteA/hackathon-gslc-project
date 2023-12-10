@@ -31,9 +31,11 @@ public class RepositoryUtil {
                 displayException("Table to join with not specified");
                 return false;
             }
-            if ((table == 1 && join_table_name.toLowerCase() != "user") || (table == 2 && join_table_name.toLowerCase() != "team")) {
-                displayException("Invalid table to join with");
-                return false;
+            if (join_table) {
+                if ((table == 1 && join_table_name.toLowerCase() != "user") || (table == 2 && join_table_name.toLowerCase() != "team")) {
+                    displayException("Invalid table to join with");
+                    return false;
+                }
             }
         }
         if ((join_table == null) && (join_table_name != null)) {
@@ -41,11 +43,15 @@ public class RepositoryUtil {
             return false;
         }
         
-        if (field == "") {
+        if (field.equals("")) {
             displayException("Field must not be empty");
             return false;
         }
         if ((filter != null) && (filter.length != 2)) {
+            for (String s : filter) {
+                System.out.println(s);
+            }
+
             displayException("Invalid filter format");
             return false;
         }

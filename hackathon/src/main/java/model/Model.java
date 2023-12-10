@@ -38,10 +38,10 @@ public class Model {
         }
 
         // Perform operator check
-        if (operator == "=") {
-            return (value == compare_value);
-        } else if (operator == "!=") {
-            return (value != compare_value);
+        if (operator.equals("=")) {
+            return (value.equals(compare_value));
+        } else if (operator.equals("!=")) {
+            return (!value.equals(compare_value));
         } else {
             // Invalid operator
             return null;
@@ -52,7 +52,7 @@ public class Model {
     // If the field does not exist, returns null.
     public String fetchField(String field) {
         for (int i = 0; i < fields.size(); i++) {
-            if (fields.get(i) == field) {
+            if (fields.get(i).equals(field)) {
                 return values.get(i);
             }
         }

@@ -11,7 +11,7 @@ public class Connection {
 	
 	private static final Connection instance = new Connection();
 	
-	private final String folderPath = "database/";
+	private final String folderPath = "hackathon/database/";
 
 	public final String userFile  = "user.csv";
 	public final String teamsFile = "teams.csv";
@@ -27,17 +27,24 @@ public class Connection {
 	
 	// Reads a CSV file with name `fileName`, parses it,
 	// and returns it as an ArrayList of ArrayList of Strings.
+	// The header is not returned.
 	public ArrayList<ArrayList<String>> readCsv(String fileName) {
 		ArrayList<ArrayList<String>> resData = new ArrayList<ArrayList<String>>();
 		
 		String filePath = this.folderPath + fileName;
 		File f = new File(filePath);
+
+		Boolean first_row = true;
 		
 		try (Scanner sc = new Scanner(f)){
-			while(sc.hasNextLine()) {
+			while (sc.hasNextLine()) {
 				String row = sc.nextLine();
-				ArrayList<String> rowData = new ArrayList<String>(Arrays.asList(row.split(",")));
-				resData.add(rowData);
+				if (first_row) {
+					first_row = false;
+				} else {
+					ArrayList<String> rowData = new ArrayList<String>(Arrays.asList(row.split(",")));
+					resData.add(rowData);
+				}
 			}
 		} catch (FileNotFoundException fe) {
 			// If file was not found
