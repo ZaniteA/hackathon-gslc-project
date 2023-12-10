@@ -13,6 +13,8 @@ All relevant files are in `hackathon`.
 - The path `hackathon/database` contains the CSV files used to store the database.
 - The path `hackathon/src/main/java` contains all Java files.
 
+**Note that the folder `database` might need to be moved for the program to run correctly, depending on the build configurations and working directory.**
+
 ### `connection` package
 
 Package that manages the `Connection` class (reading and writing to CSV files).
