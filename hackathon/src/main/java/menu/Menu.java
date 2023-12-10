@@ -48,6 +48,27 @@ public class Menu {
 		}
 	}
 	
+	// Reads an integer in the expected range.
+	// Returns the integer if the read was successful, or null otherwise,
+	// and sends an error message
+	private static Integer readRangedInteger(int lo, int hi, String message) {
+		int ret = 0;
+		try {
+			ret = userInput.nextInt();
+		} catch (Exception e) {
+			generateError(message);
+			return null;
+		}
+		userInput.nextLine();
+
+		if (ret < lo || ret > hi) {
+			generateError(message);
+			return null;
+		}
+
+		return ret;
+	}
+	
 	// Displays the home menu.
 	private static void homeMenu() {
 		// Print previous error (if any)
@@ -62,8 +83,8 @@ public class Menu {
 		System.out.print("> ");
 		
 		// Get user input
-		int resp = userInput.nextInt();
-		userInput.nextLine();
+		Integer resp = readRangedInteger(1, 4, "Undefined menu section");
+		if (resp == null) return;
 		
 		// Validate input
 		if(resp == 1) { // Insert data
@@ -74,8 +95,6 @@ public class Menu {
 			sect = 4;
 		} else if (resp == 4) { // Exit program
 			sect = 5;
-		} else { // Unidentified input
-			generateError("Undefined menu section");
 		}
 		
 		clearScreen();
@@ -95,8 +114,8 @@ public class Menu {
 		System.out.print("> ");
 		
 		// Get user input
-		int table = userInput.nextInt();
-		userInput.nextLine();
+		Integer table = readRangedInteger(1, 2, "Invalid table");
+		if (table == null) return;
 		
 		// Create ArrayList of fields 
 		ArrayList<String> fields = new ArrayList<String>();
@@ -159,12 +178,8 @@ public class Menu {
 		System.out.print("> ");
 		
 		// Get table
-		int table = userInput.nextInt();
-
-		if (table != 1 && table != 2) {
-			generateError("Invalid table");
-			return;
-		}
+		Integer table = readRangedInteger(1, 2, "Invalid table");
+		if (table == null) return;
 		
 		// Ask if the user wants to filter by some special condition
 		System.out.println("Want to filter by condition?");
@@ -173,8 +188,8 @@ public class Menu {
 		System.out.print("> ");
 		
 		// Get condition status
-		int stat = userInput.nextInt();
-		userInput.nextLine();
+		Integer stat = readRangedInteger(1, 2, "Invalid filter choice");
+		if (stat == null) return;
 		
 		String cond = null;
 		
@@ -215,13 +230,8 @@ public class Menu {
 		System.out.print("> ");
 		
 		// Get table
-		int table = userInput.nextInt();
-		String buf = userInput.nextLine();
-
-		if (table != 1 && table != 2) {
-			generateError("Invalid table");
-			return;
-		}
+		Integer table = readRangedInteger(1, 2, "Invalid table");
+		if (table == null) return;
 		
 		String key_data;
 		
@@ -244,7 +254,7 @@ public class Menu {
 
 		System.out.println("Press Enter to continue");
 		System.out.print("> ");
-		buf = userInput.nextLine();
+		String buf = userInput.nextLine();
 
 		clearScreen();
 		
